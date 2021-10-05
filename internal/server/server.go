@@ -71,8 +71,8 @@ func (s *grpcServer) ConsumeStream(request *api.ConsumeRequest,
 			res, err := s.Consume(stream.Context(),request)
 			switch err.(type) {
 			case nil:
-			//case api.ErrOffsetOutOfRange:
-			//	continue
+			case api.ErrOffsetOutOfRange:
+				continue
 			default:
 				return err
 				
@@ -80,6 +80,7 @@ func (s *grpcServer) ConsumeStream(request *api.ConsumeRequest,
 			if err = stream.Send(res); err != nil {
 				return err
 			}
+			request.Offset++
 		}
 		
 		
