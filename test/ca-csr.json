@@ -1,0 +1,17 @@
+{
+  "CN": "Nicknet CA",
+  "key" : {
+    "algo" : "rsa",
+    "size" :2048
+  },
+  "names" : [
+    {
+      "C" :"GH",
+      "L" : "TEMA",
+      "ST" : "GREATER ACCRA",
+      "O" : "Nicknet",
+      "OU": "Nicknet Engineering"
+    }
+  ]
+
+}
