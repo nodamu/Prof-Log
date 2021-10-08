@@ -7,24 +7,22 @@ import (
 )
 
 type CommitLog interface {
-	Append(*api.Record) (uint64,error)
-	Read(uint64)(*api.Record,error)
+	Append(*api.Record) (uint64, error)
+	Read(uint64) (*api.Record, error)
 }
 
 type Config struct {
 	CommitLog CommitLog
 }
 
-
 // Embedded struct that implements the LogServer interface
 type grpcServer struct {
 	api.UnimplementedLogServer
-	 *Config
+	*Config
 }
 
-
 // newgrpcServer factory method to create a grpcServer object
-func newgrpcServer(config *Config)(srv *grpcServer,err error){
+func newgrpcServer(config *Config) (srv *grpcServer, err error) {
 	srv = &grpcServer{
 		Config: config,
 	}
@@ -33,13 +31,13 @@ func newgrpcServer(config *Config)(srv *grpcServer,err error){
 }
 
 // NewGRPCServer is a factory method to create a grpc server
-func NewGRPCServer(config *Config)(*grpc.Server,error){
-	gsrv := grpc.NewServer()
-	srv,err := newgrpcServer(config)
+func NewGRPCServer(config *Config, opts ...grpc.ServerOption) (*grpc.Server, error) {
+	gsrv := grpc.NewServer(opts...)
+	srv, err := newgrpcServer(config)
 	if err != nil {
 		return nil, err
 	}
-	api.RegisterLogServer(gsrv,srv)
+	api.RegisterLogServer(gsrv, srv)
 
 	return gsrv, nil
 }
@@ -50,7 +48,7 @@ func (s *grpcServer) Produce(ctx context.Context, request *api.ProduceRequest) (
 		return nil, err
 	}
 
-	return &api.ProduceResponse{Offset: offset},nil
+	return &api.ProduceResponse{Offset: offset}, nil
 }
 
 func (s *grpcServer) Consume(ctx context.Context, request *api.ConsumeRequest) (*api.ConsumeResponse, error) {
@@ -58,43 +56,42 @@ func (s *grpcServer) Consume(ctx context.Context, request *api.ConsumeRequest) (
 	if read != nil {
 		return nil, read
 	}
-	return &api.ConsumeResponse{Record: record,},nil
+	return &api.ConsumeResponse{Record: record}, nil
 }
 
 func (s *grpcServer) ConsumeStream(request *api.ConsumeRequest,
 	stream api.Log_ConsumeStreamServer) error {
-	for{
+	for {
 		select {
 		case <-stream.Context().Done():
 			return nil
 		default:
-			res, err := s.Consume(stream.Context(),request)
+			res, err := s.Consume(stream.Context(), request)
 			switch err.(type) {
 			case nil:
 			case api.ErrOffsetOutOfRange:
 				continue
 			default:
 				return err
-				
+
 			}
 			if err = stream.Send(res); err != nil {
 				return err
 			}
 			request.Offset++
 		}
-		
-		
+
 	}
 }
 
 func (s *grpcServer) ProduceStream(stream api.Log_ProduceStreamServer) error {
-	for  {
-		req,err := stream.Recv()
+	for {
+		req, err := stream.Recv()
 		if err != nil {
 			return err
 		}
 
-		res,err := s.Produce(stream.Context(), req)
+		res, err := s.Produce(stream.Context(), req)
 		if err != nil {
 			return err
 		}
@@ -104,7 +101,3 @@ func (s *grpcServer) ProduceStream(stream api.Log_ProduceStreamServer) error {
 		}
 	}
 }
-
-
-
-
