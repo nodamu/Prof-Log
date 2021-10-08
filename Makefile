@@ -6,15 +6,26 @@ init:
 
 .PHONY: gencert
 gencert:
+
+	# Generate CA cert
 	cfssl gencert \
 		-initca test/ca-csr.json | cfssljson -bare ca
 
+	#Generate server cert
 	cfssl gencert \
 		-ca=ca.pem \
 		-ca-key=ca-key.pem \
 		-config=test/ca-config.json \
 		-profile=server \
 		test/server-csr.json | cfssljson -bare server
+
+	#Generate client cert
+	cfssl gencert \
+		-ca=ca.pem \
+		-ca-key=ca-key.pem \
+		-config=test/ca-config.json \
+		-profile=client \
+		test/client-csr.json | cfssljson -bare client
 
 	mv *.pem *.csr ${CONFIG_PATH}
 
