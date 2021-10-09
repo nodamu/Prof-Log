@@ -3,7 +3,7 @@
 
 ### Tools
 * Golang
-* API - GRPC
+* API - gRPC
 * Observability - OpenCensus, OpenTemeletry, Uber Zap
 * Consensus - Raft
 * Service Discovery - Serf
