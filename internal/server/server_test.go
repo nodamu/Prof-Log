@@ -21,21 +21,22 @@ func TestServer(t *testing.T) {
 		t *testing.T,
 		rootClient api.LogClient,
 		nobodyClient api.LogClient,
-		config *Config){
-		"produce/consume a message to/from the log succeeeds": testProduceConsume,
-		"produce/consume stream succeeds":                     testProduceConsumeStream,
-		"consume past log boundary fails":                     testConsumePastBoundary,
-		"unauthorized fails":                                  testUnauthorized,
+		//config *Config
+	){
+		"produce/consume a message to/from the log succeeds": testProduceConsume,
+		"produce/consume stream succeeds":                    testProduceConsumeStream,
+		"consume past log boundary fails":                    testConsumePastBoundary,
+		"unauthorized fails":                                 testUnauthorized,
 	} {
 		t.Run(scenario, func(t *testing.T) {
-			rootClient, nobodyClient, config, teardown := setupTest(t, nil)
+			rootClient, nobodyClient, _, teardown := setupTest(t, nil)
 			defer teardown()
-			fn(t, rootClient, nobodyClient, config)
+			fn(t, rootClient, nobodyClient)
 		})
 	}
 }
 
-func testConsumePastBoundary(t *testing.T, client api.LogClient, _ api.LogClient, config *Config) {
+func testConsumePastBoundary(t *testing.T, client api.LogClient, _ api.LogClient) {
 	ctx := context.Background()
 
 	msg := &api.Record{Value: []byte("Chicken Wings")}
@@ -58,7 +59,7 @@ func testConsumePastBoundary(t *testing.T, client api.LogClient, _ api.LogClient
 
 }
 
-func testProduceConsumeStream(t *testing.T, client api.LogClient, _ api.LogClient, config *Config) {
+func testProduceConsumeStream(t *testing.T, client api.LogClient, _ api.LogClient) {
 	ctx := context.Background()
 
 	records := []*api.Record{{
@@ -104,7 +105,7 @@ func testProduceConsumeStream(t *testing.T, client api.LogClient, _ api.LogClien
 
 }
 
-func testUnauthorized(t *testing.T, _, client api.LogClient, config *Config) {
+func testUnauthorized(t *testing.T, _, client api.LogClient) {
 	ctx := context.Background()
 
 	produce, err := client.Produce(ctx, &api.ProduceRequest{
@@ -222,7 +223,7 @@ func setupTest(t *testing.T, fn func(config *Config)) (
 	}
 }
 
-func testProduceConsume(t *testing.T, client api.LogClient, _ api.LogClient, config *Config) {
+func testProduceConsume(t *testing.T, client api.LogClient, _ api.LogClient) {
 	ctx := context.Background()
 
 	want := &api.Record{
