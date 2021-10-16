@@ -18,6 +18,8 @@ type Replicator struct {
 	close       chan struct{}
 }
 
+//Join adds the server of the given address to list of servers to replicate from
+// Runs the goroutine that runs the replication logic
 func (r *Replicator) Join(name, addr string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
