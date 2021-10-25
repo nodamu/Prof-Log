@@ -97,10 +97,10 @@ func Test(t *testing.T) {
 
 	followerClient := client(t, agents[1], peerTLSConfig)
 
-	followerConsumeResponse, err := followerClient.Consume(context.Background(),
+	consumeResponse, err = followerClient.Consume(context.Background(),
 		&api.ConsumeRequest{Offset: produceResponse.Offset})
 	require.NoError(t, err)
-	require.Equal(t, followerConsumeResponse.Record.Value, []byte("chicken wings"))
+	require.Equal(t, consumeResponse.Record.Value, []byte("chicken wings"))
 }
 
 func client(t *testing.T, agent *agent.Agent, tlsConfig *tls.Config) api.LogClient {
