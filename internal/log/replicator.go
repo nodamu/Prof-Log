@@ -138,7 +138,8 @@ func (r *Replicator) init() {
 func (r *Replicator) Close() error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	//r.init()
+	r.init()
+
 	if r.closed {
 		return nil
 	}
